@@ -714,32 +714,32 @@ def parseExtensions(dir: str, maxFiles = 100000):
         if (n > maxFiles): break    
     return(exts)
 
-def suctionBash(dir:list[str], excludeDirs: list[str]):
-    # Not working, some error with (  in the script "¯\_(ツ)_/¯ "
-    import textwrap
-    if isinstance(excludeDirs, str): excludeDirs = [excludeDirs]
-    excludeDirs = ",".join(excludeDirs)
-    script = textwrap.dedent("""
-        #!/bin/bash
-        SEARCHDIR=%s
-        EXCLUDEDIRS=%s
-        IFS=$'\\n' read -r -d '' -a EXCLUDEDIRS < <(awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' <<<"$EXCLUDEDIRS")
-        EXCLUDEARG=""
+# def suctionBash(dir:list[str], excludeDirs: list[str]):
+#     # Not working, some error with (  in the script "¯\_(ツ)_/¯ "
+#     import textwrap
+#     if isinstance(excludeDirs, str): excludeDirs = [excludeDirs]
+#     excludeDirs = ",".join(excludeDirs)
+#     script = textwrap.dedent("""
+#         #!/bin/bash
+#         SEARCHDIR=%s
+#         EXCLUDEDIRS=%s
+#         IFS=$'\\n' read -r -d '' -a EXCLUDEDIRS < <(awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' <<<"$EXCLUDEDIRS")
+#         EXCLUDEARG=""
 
-        for DIR in "${EXCLUDEDIRS[@]}"; do
-            EXCLUDEARG+=' -not \( -path '"'*$DIR*' -prune \)"
-        done
+#         for DIR in "${EXCLUDEDIRS[@]}"; do
+#             EXCLUDEARG+=' -not \( -path '"'*$DIR*' -prune \)"
+#         done
 
-        EXCLUDEARG="${EXCLUDEARG:1}"
+#         EXCLUDEARG="${EXCLUDEARG:1}"
 
-        FINDFILES="find $SEARCHDIR -type f $EXCLUDEARG  -exec mv --backup=numbered {} $SEARCHDIR  2> /dev/null \;"
-        DELDIRS="find $SEARCHDIR/* -type d -exec rm -rf {} 2> /dev/null \;"
+#         FINDFILES="find $SEARCHDIR -type f $EXCLUDEARG  -exec mv --backup=numbered {} $SEARCHDIR  2> /dev/null \;"
+#         DELDIRS="find $SEARCHDIR/* -type d -exec rm -rf {} 2> /dev/null \;"
 
-        eval $FINDFILES
-        eval $DELDIRS
-        """ % (dir, excludeDirs))
+#         eval $FINDFILES
+#         eval $DELDIRS
+#         """ % (dir, excludeDirs))
 
-    os.system("bash -c '%s'" % script)
+#     os.system("bash -c '%s'" % script)
 
 def suction(dir:list[str], excludeDirs: list[str] = []):
     """Moves all files within the specified directory to the root dir, then deletes all the folders

@@ -6,34 +6,20 @@
 
 A library of search functions for various projects at APL.
 
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Quick-Start Guide](#quick-start%guide)
-- [Dependencies](#dependencies)
-- [Installation](#installation)
-- [Input](#input)
-- [Output](#output)
-- [Workflow](#workflow)
-- [References](#references)
-
-## Quick-Start Guide
-
-To run the script:
-```bash
-conda activate search-tools
-python search-tools
-```
-
 ## Dependencies
 
-See [environment.yml](environment.yml) for package dependancies.
+See [environment.yml](environment.yml) or [requirements.txt](requirements.txt) for package dependancies.
 
 ## Installation
 
-[Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) is required to build an environment with required workflow dependencies:
+Install with pip:
 
 ```bash
-conda env create -f environment.yml
-conda activate search-tools
+$ pip install git+https://github.com/provlab-bioinfo/search-tools
+```
+
+Access in python:
+
+```python
+>>> import search_tools
 ```

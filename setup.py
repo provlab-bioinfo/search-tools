@@ -8,7 +8,8 @@ setup(
         'alive_progress',
         'pandas',
         'pyahocorasick',
-        'setuptools'
+        'setuptools',
+        "openpyxl"
     ],
     python_requires='>=3.10, <4',
     description='A library of search functions for various projects at APL.',

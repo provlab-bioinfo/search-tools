@@ -792,7 +792,7 @@ def importToDataFrame(filename, **kargs):
         case ".xlsx" | ".xlsm":
             df = pd.read_excel(filename, **kargs)
         case _:
-            df = filename
+            raise ImportError(f'Not able to parse extension "{ext}"')
     
     return df
 

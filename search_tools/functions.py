@@ -789,7 +789,7 @@ def importToDataFrame(filename, **kargs):
             df = pd.read_csv(filename, sep="\t", **kargs)
         case ".csv":
             df = pd.read_csv(filename, **kargs)
-        case ".xlsx":
+        case ".xlsx" | ".xlsm":
             df = pd.read_excel(filename, **kargs)
         case _:
             df = filename

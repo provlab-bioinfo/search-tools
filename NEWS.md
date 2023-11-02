@@ -1,3 +1,5 @@
-# wwCOV 0.0.0.9000
+# search-tools 0.1.0.1 - 2 Nov 2023
+* Feat: added .xlsm import
 
-* Added a `NEWS.md` file to track changes to the package.
+# search-tools 0.1.0.0
+* Release: Inital release

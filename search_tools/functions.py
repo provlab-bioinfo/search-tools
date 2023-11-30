@@ -814,3 +814,11 @@ def exportDataFrame(df, out, **kargs):
             df = out
     
     return out
+
+def convertLinuxDBtoWindows(dbPath, newPath, replace):
+    with open(dbPath,'r') as oldDB:
+        with open(newPath,'w') as newDB:
+            for line in oldDB:
+                ln = line
+                for rep in replace: ln = ln.replace(rep[0],rep[1])
+                newDB.write(ln)

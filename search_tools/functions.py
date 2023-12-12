@@ -822,3 +822,14 @@ def convertLinuxDBtoWindows(dbPath, newPath, replace):
                 ln = line
                 for rep in replace: ln = ln.replace(rep[0],rep[1])
                 newDB.write(ln)
+
+def collapseNumbers(numbers: list[str]):
+    """Collapses a list of numbered strings into a list
+    :param numbers: List of strings with some iterating number
+    :return: A string list of the collapsed ranges
+    """
+    numbers = pd.Series(numbers)
+    s = numbers.apply(lambda x: int(re.findall(r'\d+', x)[0])).sort_values()
+    v = s.diff().bfill().ne(1).cumsum() 
+    ranges = (s.astype(str).groupby(v).apply(lambda x: '-'.join(x.values[[0, -1]]) if len(x) > 1 else x.item()).tolist())
+    return ranges

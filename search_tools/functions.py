@@ -6,9 +6,9 @@ from alive_progress import alive_bar
 from itertools import chain
 from collections import defaultdict
 
-def findFile(regex, exclude = []):
-    """Simple finder for a single file
-    :param regex: The regex for the file
+def findFiles(regex, exclude = []):
+    """Simple finder for a multiple files
+    :param regex: The regex for the files
     :param exclude: list of terms to exclude from the string
     """    
     file = re.compile(f".*({regex}).*")
@@ -20,7 +20,17 @@ def findFile(regex, exclude = []):
         for fname in files:
             if file.match(fname): found = found + [os.path.join(dname, fname)]
     if not found: return []
-    found = found[0] if len(found) == 1 else max(found, key=os.path.getctime)
+    elif len(found) == 1: return found[0]
+    else: return found
+
+def findFile(regex, exclude = [], func = lambda files: max(files, key=os.path.getctime)):
+    """Simple finder for a single file
+    :param regex: The regex for the file
+    :param exclude: list of terms to exclude from the string
+    :param func: function to execute to ensure a single file return
+    """   
+    found = findFiles(regex, exclude)
+    found = found[0] if len(found) == 1 else func(found)
     return [] if not found else found
 
 def generateMLookupDB(dir: str, outDir: str, excludeDirs: list[str] = None):

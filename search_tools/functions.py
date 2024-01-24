@@ -6,14 +6,22 @@ from alive_progress import alive_bar
 from itertools import chain
 from collections import defaultdict
 
-def findFile(regex, exclude = None):
+def findFile(regex, exclude = []):
     """Simple finder for a single file
     :param regex: The regex for the file
+    :param exclude: list of terms to exclude from the string
     """    
-    files = glob.glob(regex, recursive = True)
-    if exclude:
-        files = [sa for sa in files if not any(sb in sa for sb in exclude)]
-    return(files)
+    file = re.compile(f".*({regex}).*")
+    exclude = [exclude] if type(exclude) == str else exclude
+    exclude = set(exclude + ["work",".nextflow",".snakemake"])
+    found = []
+    for dname, dirs, files in os.walk(os.getcwd()):  #this loop though directies recursively 
+        dirs[:] = [d for d in dirs if d not in exclude] # exclude directory if in exclude list 
+        for fname in files:
+            if file.match(fname): found = found + [os.path.join(dname, fname)]
+    if not found: return []
+    found = found[0] if len(found) == 1 else max(found, key=os.path.getctime)
+    return [] if not found else found
 
 def generateMLookupDB(dir: str, outDir: str, excludeDirs: list[str] = None):
     """ Generates a mlocate.db database for indexed searching

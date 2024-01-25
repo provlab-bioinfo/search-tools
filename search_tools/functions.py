@@ -10,6 +10,7 @@ def findFiles(regex, exclude = []):
     """Simple finder for a multiple files
     :param regex: The regex for the files
     :param exclude: list of terms to exclude from the string
+    :return: A list of matching files
     """    
     file = re.compile(f".*({regex}).*")
     exclude = [exclude] if type(exclude) == str else exclude
@@ -19,20 +20,20 @@ def findFiles(regex, exclude = []):
         dirs[:] = [d for d in dirs if d not in exclude] # exclude directory if in exclude list 
         for fname in files:
             if file.match(fname): found = found + [os.path.join(dname, fname)]
-    if not found: return []
-    elif len(found) == 1: return found[0]
-    else: return found
+    return [] if not found else found
 
 def findFile(regex, exclude = [], func = lambda files: max(files, key=os.path.getctime)):
     """Simple finder for a single file
     :param regex: The regex for the file
     :param exclude: list of terms to exclude from the string
-    :param func: function to execute to ensure a single file return
+    :param func: function to execute to ensure a single file return. Default: newest file
+    :return: A single file
     """   
     found = findFiles(regex, exclude)
-    found = found[0] if len(found) == 1 else func(found)
-    return [] if not found else found
-
+    if not found: return []
+    elif len(found) == 1: return found[0]
+    else: return func(found)
+     
 def generateMLookupDB(dir: str, outDir: str, excludeDirs: list[str] = None):
     """ Generates a mlocate.db database for indexed searching
     :param dir: The directory to search

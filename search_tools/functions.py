@@ -6,7 +6,7 @@ from alive_progress import alive_bar
 from itertools import chain
 from collections import defaultdict
 
-def findFiles(regex, exclude = []):
+def findFiles(regex, exclude = [], target_directory=os.getcwd()):
     """Simple finder for a multiple files
     :param regex: The regex for the files
     :param exclude: list of terms to exclude from the string
@@ -16,7 +16,7 @@ def findFiles(regex, exclude = []):
     exclude = [exclude] if type(exclude) == str else exclude
     exclude = set(exclude + ["work",".nextflow",".snakemake"])
     found = []
-    for dname, dirs, files in os.walk(os.getcwd()):  #this loop though directies recursively 
+    for dname, dirs, files in os.walk(target_directory):  #this loop though directies recursively 
         dirs[:] = [d for d in dirs if d not in exclude] # exclude directory if in exclude list 
         for fname in files:
             if file.match(fname): found = found + [os.path.join(dname, fname)]

@@ -6,12 +6,34 @@ from alive_progress import alive_bar
 from itertools import chain
 from collections import defaultdict
 
-def findFile(regex):
+def findFiles(regex, exclude = []):
+    """Simple finder for a multiple files
+    :param regex: The regex for the files
+    :param exclude: list of terms to exclude from the string
+    :return: A list of matching files
+    """    
+    file = re.compile(f".*({regex}).*")
+    exclude = [exclude] if type(exclude) == str else exclude
+    exclude = set(exclude + ["work",".nextflow",".snakemake"])
+    found = []
+    for dname, dirs, files in os.walk(os.getcwd()):  #this loop though directies recursively 
+        dirs[:] = [d for d in dirs if d not in exclude] # exclude directory if in exclude list 
+        for fname in files:
+            if file.match(fname): found = found + [os.path.join(dname, fname)]
+    return [] if not found else found
+
+def findFile(regex, exclude = [], func = lambda files: max(files, key=os.path.getctime)):
     """Simple finder for a single file
     :param regex: The regex for the file
-    """    
-    return(glob.glob(regex, recursive = True))
-
+    :param exclude: list of terms to exclude from the string
+    :param func: function to execute to ensure a single file return. Default: newest file
+    :return: A single file
+    """   
+    found = findFiles(regex, exclude)
+    if not found: return []
+    elif len(found) == 1: return found[0]
+    else: return func(found)
+     
 def generateMLookupDB(dir: str, outDir: str, excludeDirs: list[str] = None):
     """ Generates a mlocate.db database for indexed searching
     :param dir: The directory to search
@@ -740,3 +762,22 @@ def exportDataFrame(df, out, **kargs):
             df = out
     
     return out
+
+def convertLinuxDBtoWindows(dbPath, newPath, replace):
+    with open(dbPath,'r') as oldDB:
+        with open(newPath,'w') as newDB:
+            for line in oldDB:
+                ln = line
+                for rep in replace: ln = ln.replace(rep[0],rep[1])
+                newDB.write(ln)
+
+def collapseNumbers(numbers: list[str]):
+    """Collapses a list of numbered strings into a list
+    :param numbers: List of strings with some iterating number
+    :return: A string list of the collapsed ranges
+    """
+    numbers = pd.Series(numbers)
+    s = numbers.apply(lambda x: int(re.findall(r'\d+', x)[0])).sort_values()
+    v = s.diff().bfill().ne(1).cumsum() 
+    ranges = (s.astype(str).groupby(v).apply(lambda x: '-'.join(x.values[[0, -1]]) if len(x) > 1 else x.item()).tolist())
+    return ranges

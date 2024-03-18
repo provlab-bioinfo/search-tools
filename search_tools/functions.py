@@ -33,6 +33,15 @@ def findFile(regex, exclude = [], func = lambda files: max(files, key=os.path.ge
     if not found: return []
     elif len(found) == 1: return found[0]
     else: return func(found)
+
+def findFiles2(regex, exclude = None):
+    """Simple finder for a single file
+    :param regex: The regex for the file
+    """    
+    files = glob.glob(regex, recursive = True)
+    if exclude:
+        files = [sa for sa in files if not any(sb in sa for sb in exclude)]
+    return(files)
      
 def generateMLookupDB(dir: str, outDir: str, excludeDirs: list[str] = None):
     """ Generates a mlocate.db database for indexed searching

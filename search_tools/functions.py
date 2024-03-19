@@ -6,7 +6,7 @@ from alive_progress import alive_bar
 from itertools import chain
 from collections import defaultdict
 
-def findFiles(regex, exclude = []):
+def findFiles(regex, exclude = [], target_directory=os.getcwd()):
     """Simple finder for a multiple files
     :param regex: The regex for the files
     :param exclude: list of terms to exclude from the string
@@ -16,7 +16,7 @@ def findFiles(regex, exclude = []):
     exclude = [exclude] if type(exclude) == str else exclude
     exclude = set(exclude + ["work",".nextflow",".snakemake"])
     found = []
-    for dname, dirs, files in os.walk(os.getcwd()):  #this loop though directies recursively 
+    for dname, dirs, files in os.walk(target_directory):  #this loop though directies recursively 
         dirs[:] = [d for d in dirs if d not in exclude] # exclude directory if in exclude list 
         for fname in files:
             if file.match(fname): found = found + [os.path.join(dname, fname)]
@@ -373,80 +373,6 @@ def compressFile(filename):
     os.remove(filename)
     return compressed_filename
 
-def moveFileInTreeSG(file:str, sourceDir:str, destDir:str, dry_run=True, log_file=None):
-    """
-    SG version of moveFileInTree with logging + dry run.
-    
-    :param file: The path to the file to move
-    :param sourceDir: The source directory
-    :param destDir: The destination directory
-    :raises FileNotFoundError: Target file does not exist
-    :raises FileNotFoundError: Target file does not exist in the source directory
-    """
-    # Validation
-    if not os.path.lexists(file): 
-        if not os.path.isdir(file):            
-            raise FileNotFoundError(f"Cannot move file. '{file}' does not exist.") 
-        else:
-            if log_file: logging.info(f"Cannot move file. '{file}' does not exist.") 
-        return
-         
-    if (sourceDir not in file): 
-        if log_file: logging.info(f"Cannot move file. '{file}' is not in {sourceDir}.")
-        raise FileNotFoundError(f"Cannot move file. '{file}' is not in {sourceDir}.")
-
-    parentDir = str(Path(file).parent)
-    newFile = file.replace(sourceDir.strip("//"), destDir.strip("//"))
-
-    # Handle symlinks
-    if os.path.islink(file): 
-        if log_file: logging.info(f"Unlinking symlink at {file}")
-        if not dry_run: 
-            os.unlink(file)
-            return
-
-    # Handle regular files
-    if (os.path.isfile(file)):
-        # Compress the file if it has a [fq|fastq|alignreport.txt] extension
-        file_extension = file.split('.')[-1]
-        if file_extension in ['fq', 'fastq', ''] or file.endswith('alignreport.txt'):
-            if log_file: logging.info(f"Compressing {file}")
-            file = compressFile(file)
-            newFile = newFile + ".gz"
-
-        if log_file: logging.info(f"Would move file {file} to {newFile}")
-        if not dry_run:
-            # Skip md5 if it is a 'work/' file
-            # if 'work/' not in file: 
-            #     original_md5 = computeMD5(file)
-            # else: 
-            #     original_md5 = None
-
-            Path(newFile).parent.mkdir(parents = True, exist_ok = True)
-            shutil.move(file, newFile)
-            # if original_md5:
-            #     new_md5 = computeMD5(newFile)
-            #     if original_md5 != new_md5: 
-            #         raise ValueError(f"MD5 mismatch after moving {file} to {newFile}. File might be corrupted.")
-            #     if log_file: logging.info(f"MD5 checksum verified for {newFile}")
-
-    # Handle directories
-    elif (os.path.isdir(file)):
-        if log_file: logging.info(f"Would make directory {newFile}")
-        if not dry_run:
-            parentDir = file
-            Path(newFile).mkdir(parents = True, exist_ok = True)
-
-    with (suppress(OSError)): os.rmdir(parentDir)
-    if log_file: logging.info(f"Would try to delete directory {parentDir}")
-    if not dry_run: 
-        try:
-            os.rmdir(parentDir)
-        except OSError as e:
-            if e.errno == errno.ENOTEMPTY:
-                logging.info(f"The directory {parentDir} is not empty, so it was not removed.")
-            else:
-                logging.info(f"An error occurred: {e}")
 
 def sampleAndCopyFiles(rootSource: str, rootDest: str, numFiles=1000, dry_run=True):
     """Sub-sample and copy files of a directory to a destination while keeping the directory structure.

@@ -822,6 +822,8 @@ def importToDataFrame(filename, **kargs):
             df = pd.read_csv(filename, **kargs)
         case ".xlsx" | ".xlsm":
             df = pd.read_excel(filename, **kargs)
+        case ".stats":
+            df = pd.read_csv(filename, sep='\s+')
         case _:
             raise ImportError(f'Not able to parse extension "{ext}"')
     
